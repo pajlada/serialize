@@ -22,7 +22,7 @@ namespace pajlada {
 template <typename Type, typename Enable = void>
 struct Deserialize {
     static Type
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const rapidjson::Value & /*value*/, bool *error = nullptr)
     {
         // static_assert(false, "Unimplemented deserialize type");
 
@@ -119,6 +119,7 @@ struct Deserialize<std::map<std::string, ValueType>> {
         std::map<std::string, ValueType> ret;
 
         if (!value.IsObject()) {
+            PAJLADA_REPORT_ERROR(error)
             return ret;
         }
 
@@ -140,6 +141,7 @@ struct Deserialize<std::vector<ValueType>> {
         std::vector<ValueType> ret;
 
         if (!value.IsArray()) {
+            PAJLADA_REPORT_ERROR(error)
             return ret;
         }
 
@@ -157,10 +159,12 @@ struct Deserialize<std::pair<Arg1, Arg2>> {
     get(const rapidjson::Value &value, bool *error = nullptr)
     {
         if (!value.IsArray()) {
+            PAJLADA_REPORT_ERROR(error)
             return std::make_pair(Arg1(), Arg2());
         }
 
         if (value.Size() != 2) {
+            PAJLADA_REPORT_ERROR(error)
             return std::make_pair(Arg1(), Arg2());
         }
 
@@ -189,6 +193,7 @@ struct Deserialize<boost::any> {
             return Deserialize<std::vector<boost::any>>::get(value);
         }
 
+        PAJLADA_REPORT_ERROR(error)
         return boost::any();
     }
 };
