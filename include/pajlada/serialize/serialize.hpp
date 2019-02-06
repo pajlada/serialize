@@ -101,6 +101,22 @@ struct Serialize<std::vector<ValueType>> {
     }
 };
 
+template <typename ValueType, size_t Size>
+struct Serialize<std::array<ValueType, Size>> {
+    static rapidjson::Value
+    get(const std::array<ValueType, Size> &value,
+        rapidjson::Document::AllocatorType &a)
+    {
+        rapidjson::Value ret(rapidjson::kArrayType);
+
+        for (size_t i = 0; i < Size; i++) {
+            detail::PushBack(ret, value[i], a);
+        }
+
+        return ret;
+    }
+};
+
 #ifdef PAJLADA_BOOST_ANY_SUPPORT
 template <>
 struct Serialize<boost::any> {

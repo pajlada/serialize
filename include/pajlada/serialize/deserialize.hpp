@@ -153,6 +153,31 @@ struct Deserialize<std::vector<ValueType>> {
     }
 };
 
+template <typename ValueType, size_t Size>
+struct Deserialize<std::array<ValueType, Size>> {
+    static std::array<ValueType, Size>
+    get(const rapidjson::Value &value, bool *error = nullptr)
+    {
+        std::array<ValueType, Size> ret;
+
+        if (!value.IsArray()) {
+            PAJLADA_REPORT_ERROR(error)
+            return ret;
+        }
+
+        if (value.GetArray().Size() != Size) {
+            PAJLADA_REPORT_ERROR(error)
+            return ret;
+        }
+
+        for (size_t i = 0; i < Size; ++i) {
+            ret[i] = Deserialize<ValueType>::get(value[i]);
+        }
+
+        return ret;
+    }
+};
+
 template <typename Arg1, typename Arg2>
 struct Deserialize<std::pair<Arg1, Arg2>> {
     static std::pair<Arg1, Arg2>
