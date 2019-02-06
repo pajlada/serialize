@@ -6,7 +6,7 @@ compiler:
     # - clang
 
 before_install:
-  - sudo apt-get install -y lcov python-yaml
+  - sudo apt-get install -y lcov python-yaml rapidjson-dev
   - sudo pip install codecov
 
 before_script:
@@ -17,7 +17,7 @@ before_script:
 script:
   - make
   - make test
-  - make signals-test-coverage
+  - make serialize-test-coverage
 
 after_success:
   - codecov -X gcov
