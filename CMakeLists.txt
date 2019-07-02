@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD 17)
 # set_property(TARGET serialize-test PROPERTY CXX_STANDARD 17)
 # set_property(TARGET serialize-test PROPERTY CXX_STANDARD_REQUIRED ON)
 
+add_library(PajladaSerialize INTERFACE)
+
+target_include_directories(PajladaSerialize INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 if (BUILD_TESTS)
     message("++ Tests enabled")
