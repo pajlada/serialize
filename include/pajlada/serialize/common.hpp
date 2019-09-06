@@ -41,10 +41,11 @@ Round(T2 value)
 #endif
 }
 
-template <typename Type, typename std::enable_if<
-                             std::is_integral<Type>::value>::type * = nullptr>
+template <
+    typename Type, typename RJValue = rapidjson::Value,
+    typename std::enable_if<std::is_integral<Type>::value>::type * = nullptr>
 Type
-GetNumber(const rapidjson::Value &value)
+GetNumber(const RJValue &value)
 {
     if (value.IsDouble()) {
         return Round<Type>(value.GetDouble());

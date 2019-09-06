@@ -19,79 +19,78 @@ namespace pajlada {
 
 namespace detail {
 
-template <typename Type>
-inline void AddMember(rapidjson::Value &object, const char *key,
-                      const Type &value, rapidjson::Document::AllocatorType &a);
+template <typename Type, typename RJValue>
+inline void AddMember(RJValue &object, const char *key, const Type &value,
+                      typename RJValue::AllocatorType &a);
 
-template <typename Type>
-inline void PushBack(rapidjson::Value &array, const Type &value,
-                     rapidjson::Document::AllocatorType &a);
+template <typename Type, typename RJValue>
+inline void PushBack(RJValue &array, const Type &value,
+                     typename RJValue::AllocatorType &a);
 
 }  // namespace detail
 
 // Serialize is called when a settings value is being saved
 
 // Create a rapidjson::Value from the templated value
-template <typename Type>
+template <typename Type, typename RJValue = rapidjson::Value>
 struct Serialize {
-    static rapidjson::Value
-    get(const Type &value, rapidjson::Document::AllocatorType &)
+    static RJValue
+    get(const Type &value, typename RJValue::AllocatorType &)
     {
-        rapidjson::Value ret(value);
+        RJValue ret(value);
 
         return ret;
     }
 };
 
-template <>
-struct Serialize<std::string> {
-    static rapidjson::Value
-    get(const std::string &value, rapidjson::Document::AllocatorType &a)
+template <typename RJValue>
+struct Serialize<std::string, RJValue> {
+    static RJValue
+    get(const std::string &value, typename RJValue::AllocatorType &a)
     {
-        rapidjson::Value ret(value.c_str(), a);
+        RJValue ret(value.c_str(), a);
 
         return ret;
     }
 };
 
-template <typename Arg1, typename Arg2>
-struct Serialize<std::pair<Arg1, Arg2>> {
-    static rapidjson::Value
-    get(const std::pair<Arg1, Arg2> &value,
-        rapidjson::Document::AllocatorType &a)
+template <typename Arg1, typename Arg2, typename RJValue>
+struct Serialize<std::pair<Arg1, Arg2>, RJValue> {
+    static RJValue
+    get(const std::pair<Arg1, Arg2> &value, typename RJValue::AllocatorType &a)
     {
-        rapidjson::Value ret(rapidjson::kArrayType);
+        RJValue ret(rapidjson::kArrayType);
 
-        ret.PushBack(Serialize<Arg1>::get(value.first, a), a);
-        ret.PushBack(Serialize<Arg2>::get(value.second, a), a);
+        ret.PushBack(Serialize<Arg1, RJValue>::get(value.first, a), a);
+        ret.PushBack(Serialize<Arg2, RJValue>::get(value.second, a), a);
 
         return ret;
     }
 };
 
-template <typename ValueType>
-struct Serialize<std::map<std::string, ValueType>> {
-    static rapidjson::Value
+template <typename ValueType, typename RJValue>
+struct Serialize<std::map<std::string, ValueType>, RJValue> {
+    static RJValue
     get(const std::map<std::string, ValueType> &value,
-        rapidjson::Document::AllocatorType &a)
+        typename RJValue::AllocatorType &a)
     {
-        rapidjson::Value ret(rapidjson::kObjectType);
+        RJValue ret(rapidjson::kObjectType);
 
         for (auto it = value.begin(); it != value.end(); ++it) {
-            detail::AddMember(ret, it->first.c_str(), it->second, a);
+            detail::AddMember<ValueType, RJValue>(ret, it->first.c_str(),
+                                                  it->second, a);
         }
 
         return ret;
     }
 };
 
-template <typename ValueType>
-struct Serialize<std::vector<ValueType>> {
-    static rapidjson::Value
-    get(const std::vector<ValueType> &value,
-        rapidjson::Document::AllocatorType &a)
+template <typename ValueType, typename RJValue>
+struct Serialize<std::vector<ValueType>, RJValue> {
+    static RJValue
+    get(const std::vector<ValueType> &value, typename RJValue::AllocatorType &a)
     {
-        rapidjson::Value ret(rapidjson::kArrayType);
+        RJValue ret(rapidjson::kArrayType);
 
         for (const auto &innerValue : value) {
             detail::PushBack(ret, innerValue, a);
@@ -101,13 +100,13 @@ struct Serialize<std::vector<ValueType>> {
     }
 };
 
-template <typename ValueType, size_t Size>
-struct Serialize<std::array<ValueType, Size>> {
-    static rapidjson::Value
+template <typename ValueType, size_t Size, typename RJValue>
+struct Serialize<std::array<ValueType, Size>, RJValue> {
+    static RJValue
     get(const std::array<ValueType, Size> &value,
-        rapidjson::Document::AllocatorType &a)
+        typename RJValue::AllocatorType &a)
     {
-        rapidjson::Value ret(rapidjson::kArrayType);
+        RJValue ret(rapidjson::kArrayType);
 
         for (size_t i = 0; i < Size; i++) {
             detail::PushBack(ret, value[i], a);
@@ -118,69 +117,69 @@ struct Serialize<std::array<ValueType, Size>> {
 };
 
 #ifdef PAJLADA_BOOST_ANY_SUPPORT
-template <>
-struct Serialize<boost::any> {
-    static rapidjson::Value
-    get(const boost::any &value, rapidjson::Document::AllocatorType &a)
+template <typename RJValue>
+struct Serialize<boost::any, RJValue> {
+    static RJValue
+    get(const boost::any &value, typename RJValue::AllocatorType &a)
     {
         using boost::any_cast;
 
         if (value.empty()) {
-            return rapidjson::Value(rapidjson::kNullType);
+            return RJValue(rapidjson::kNullType);
         }
 
         if (value.type() == typeid(int)) {
-            return Serialize<int>::get(any_cast<int>(value), a);
+            return Serialize<int, RJValue>::get(any_cast<int>(value), a);
         } else if (value.type() == typeid(float)) {
-            return Serialize<float>::get(any_cast<float>(value), a);
+            return Serialize<float, RJValue>::get(any_cast<float>(value), a);
         } else if (value.type() == typeid(double)) {
-            return Serialize<double>::get(any_cast<double>(value), a);
+            return Serialize<double, RJValue>::get(any_cast<double>(value), a);
         } else if (value.type() == typeid(bool)) {
-            return Serialize<bool>::get(any_cast<bool>(value), a);
+            return Serialize<bool, RJValue>::get(any_cast<bool>(value), a);
         } else if (value.type() == typeid(std::string)) {
-            return Serialize<std::string>::get(any_cast<std::string>(value), a);
+            return Serialize<std::string, RJValue>::get(
+                any_cast<std::string>(value), a);
         } else if (value.type() == typeid(const char *)) {
-            return Serialize<std::string>::get(any_cast<const char *>(value),
-                                               a);
+            return Serialize<std::string, RJValue>::get(
+                any_cast<const char *>(value), a);
         } else if (value.type() == typeid(std::map<std::string, boost::any>)) {
-            return Serialize<std::map<std::string, boost::any>>::get(
+            return Serialize<std::map<std::string, boost::any>, RJValue>::get(
                 any_cast<std::map<std::string, boost::any>>(value), a);
         } else if (value.type() == typeid(std::vector<boost::any>)) {
-            return Serialize<std::vector<boost::any>>::get(
+            return Serialize<std::vector<boost::any>, RJValue>::get(
                 any_cast<std::vector<boost::any>>(value), a);
         } else if (value.type() == typeid(std::vector<std::string>)) {
-            return Serialize<std::vector<std::string>>::get(
+            return Serialize<std::vector<std::string>, RJValue>::get(
                 any_cast<std::vector<std::string>>(value), a);
         } else {
             // PS_DEBUG("[boost::any] Serialize: Unknown type of value");
         }
 
-        return rapidjson::Value(rapidjson::kNullType);
+        return RJValue(rapidjson::kNullType);
     }
 };
 #endif
 
 namespace detail {
 
-template <typename Type>
+template <typename Type, typename RJValue = rapidjson::Value>
 inline void
-AddMember(rapidjson::Value &object, const char *key, const Type &value,
-          rapidjson::Document::AllocatorType &a)
+AddMember(RJValue &object, const char *key, const Type &value,
+          typename RJValue::AllocatorType &a)
 {
     assert(object.IsObject());
 
-    object.AddMember(rapidjson::Value(key, a).Move(),
-                     Serialize<Type>::get(value, a), a);
+    object.AddMember(RJValue(key, a).Move(),
+                     Serialize<Type, RJValue>::get(value, a), a);
 }
 
-template <typename Type>
+template <typename Type, typename RJValue = rapidjson::Value>
 inline void
-PushBack(rapidjson::Value &array, const Type &value,
-         rapidjson::Document::AllocatorType &a)
+PushBack(RJValue &array, const Type &value, typename RJValue::AllocatorType &a)
 {
     assert(array.IsArray());
 
-    array.PushBack(Serialize<Type>::get(value, a), a);
+    array.PushBack(Serialize<Type, RJValue>::get(value, a), a);
 }
 
 }  // namespace detail

@@ -19,10 +19,11 @@ namespace pajlada {
 
 // Deserialize is called when we load a json file into our library
 
-template <typename Type, typename Enable = void>
+template <typename Type, typename RJValue = rapidjson::Value,
+          typename Enable = void>
 struct Deserialize {
     static Type
-    get(const rapidjson::Value & /*value*/, bool *error = nullptr)
+    get(const RJValue & /*value*/, bool *error = nullptr)
     {
         // static_assert(false, "Unimplemented deserialize type");
 
@@ -32,11 +33,12 @@ struct Deserialize {
     }
 };
 
-template <typename Type>
+template <typename Type, typename RJValue>
 struct Deserialize<
-    Type, typename std::enable_if<std::is_integral<Type>::value>::type> {
+    Type, RJValue,
+    typename std::enable_if<std::is_integral<Type>::value>::type> {
     static Type
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (!value.IsNumber()) {
             PAJLADA_REPORT_ERROR(error)
@@ -47,10 +49,10 @@ struct Deserialize<
     }
 };
 
-template <>
-struct Deserialize<bool> {
+template <typename RJValue>
+struct Deserialize<bool, RJValue> {
     static bool
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (value.IsBool()) {
             // No conversion needed
@@ -69,10 +71,10 @@ struct Deserialize<bool> {
     }
 };
 
-template <>
-struct Deserialize<double> {
+template <typename RJValue>
+struct Deserialize<double, RJValue> {
     static double
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (!value.IsNumber()) {
             PAJLADA_REPORT_ERROR(error)
@@ -83,10 +85,10 @@ struct Deserialize<double> {
     }
 };
 
-template <>
-struct Deserialize<float> {
+template <typename RJValue>
+struct Deserialize<float, RJValue> {
     static float
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (!value.IsNumber()) {
             PAJLADA_REPORT_ERROR(error)
@@ -97,10 +99,10 @@ struct Deserialize<float> {
     }
 };
 
-template <>
-struct Deserialize<std::string> {
+template <typename RJValue>
+struct Deserialize<std::string, RJValue> {
     static std::string
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (!value.IsString()) {
             PAJLADA_REPORT_ERROR(error)
@@ -111,10 +113,10 @@ struct Deserialize<std::string> {
     }
 };
 
-template <typename ValueType>
-struct Deserialize<std::map<std::string, ValueType>> {
+template <typename ValueType, typename RJValue>
+struct Deserialize<std::map<std::string, ValueType>, RJValue> {
     static std::map<std::string, ValueType>
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         std::map<std::string, ValueType> ret;
 
@@ -123,20 +125,20 @@ struct Deserialize<std::map<std::string, ValueType>> {
             return ret;
         }
 
-        for (rapidjson::Value::ConstMemberIterator it = value.MemberBegin();
+        for (typename RJValue::ConstMemberIterator it = value.MemberBegin();
              it != value.MemberEnd(); ++it) {
             ret.emplace(it->name.GetString(),
-                        Deserialize<ValueType>::get(it->value));
+                        Deserialize<ValueType, RJValue>::get(it->value));
         }
 
         return ret;
     }
 };
 
-template <typename ValueType>
-struct Deserialize<std::vector<ValueType>> {
+template <typename ValueType, typename RJValue>
+struct Deserialize<std::vector<ValueType>, RJValue> {
     static std::vector<ValueType>
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         std::vector<ValueType> ret;
 
@@ -145,18 +147,18 @@ struct Deserialize<std::vector<ValueType>> {
             return ret;
         }
 
-        for (const rapidjson::Value &innerValue : value.GetArray()) {
-            ret.emplace_back(Deserialize<ValueType>::get(innerValue));
+        for (const RJValue &innerValue : value.GetArray()) {
+            ret.emplace_back(Deserialize<ValueType, RJValue>::get(innerValue));
         }
 
         return ret;
     }
 };
 
-template <typename ValueType, size_t Size>
-struct Deserialize<std::array<ValueType, Size>> {
+template <typename ValueType, size_t Size, typename RJValue>
+struct Deserialize<std::array<ValueType, Size>, RJValue> {
     static std::array<ValueType, Size>
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         std::array<ValueType, Size> ret;
 
@@ -171,17 +173,17 @@ struct Deserialize<std::array<ValueType, Size>> {
         }
 
         for (size_t i = 0; i < Size; ++i) {
-            ret[i] = Deserialize<ValueType>::get(value[i]);
+            ret[i] = Deserialize<ValueType, RJValue>::get(value[i]);
         }
 
         return ret;
     }
 };
 
-template <typename Arg1, typename Arg2>
-struct Deserialize<std::pair<Arg1, Arg2>> {
+template <typename Arg1, typename Arg2, typename RJValue>
+struct Deserialize<std::pair<Arg1, Arg2>, RJValue> {
     static std::pair<Arg1, Arg2>
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (!value.IsArray()) {
             PAJLADA_REPORT_ERROR(error)
@@ -193,16 +195,16 @@ struct Deserialize<std::pair<Arg1, Arg2>> {
             return std::make_pair(Arg1(), Arg2());
         }
 
-        return std::make_pair(Deserialize<Arg1>::get(value[0]),
-                              Deserialize<Arg2>::get(value[1]));
+        return std::make_pair(Deserialize<Arg1, RJValue>::get(value[0]),
+                              Deserialize<Arg2, RJValue>::get(value[1]));
     }
 };
 
 #ifdef PAJLADA_BOOST_ANY_SUPPORT
-template <>
-struct Deserialize<boost::any> {
+template <typename RJValue>
+struct Deserialize<boost::any, RJValue> {
     static boost::any
-    get(const rapidjson::Value &value, bool *error = nullptr)
+    get(const RJValue &value, bool *error = nullptr)
     {
         if (value.IsInt()) {
             return value.GetInt();
@@ -213,9 +215,10 @@ struct Deserialize<boost::any> {
         } else if (value.IsBool()) {
             return value.GetBool();
         } else if (value.IsObject()) {
-            return Deserialize<std::map<std::string, boost::any>>::get(value);
+            return Deserialize<std::map<std::string, boost::any>, RJValue>::get(
+                value);
         } else if (value.IsArray()) {
-            return Deserialize<std::vector<boost::any>>::get(value);
+            return Deserialize<std::vector<boost::any>, RJValue>::get(value);
         }
 
         PAJLADA_REPORT_ERROR(error)
