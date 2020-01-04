@@ -12,6 +12,7 @@
 #include <cmath>
 #include <map>
 #include <stdexcept>
+#include <string>
 #include <typeinfo>
 #include <vector>
 
