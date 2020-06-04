@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pajlada/serialize/common.hpp>
-
 #include <rapidjson/document.h>
+
+#include <pajlada/serialize/common.hpp>
 
 #ifdef PAJLADA_BOOST_ANY_SUPPORT
 #include <boost/any.hpp>
@@ -129,7 +129,7 @@ struct Deserialize<std::map<std::string, ValueType>, RJValue> {
         for (typename RJValue::ConstMemberIterator it = value.MemberBegin();
              it != value.MemberEnd(); ++it) {
             ret.emplace(it->name.GetString(),
-                        Deserialize<ValueType, RJValue>::get(it->value));
+                        Deserialize<ValueType, RJValue>::get(it->value, error));
         }
 
         return ret;
@@ -149,7 +149,8 @@ struct Deserialize<std::vector<ValueType>, RJValue> {
         }
 
         for (const RJValue &innerValue : value.GetArray()) {
-            ret.emplace_back(Deserialize<ValueType, RJValue>::get(innerValue));
+            ret.emplace_back(
+                Deserialize<ValueType, RJValue>::get(innerValue, error));
         }
 
         return ret;
@@ -174,7 +175,7 @@ struct Deserialize<std::array<ValueType, Size>, RJValue> {
         }
 
         for (size_t i = 0; i < Size; ++i) {
-            ret[i] = Deserialize<ValueType, RJValue>::get(value[i]);
+            ret[i] = Deserialize<ValueType, RJValue>::get(value[i], error);
         }
 
         return ret;
@@ -196,8 +197,8 @@ struct Deserialize<std::pair<Arg1, Arg2>, RJValue> {
             return std::make_pair(Arg1(), Arg2());
         }
 
-        return std::make_pair(Deserialize<Arg1, RJValue>::get(value[0]),
-                              Deserialize<Arg2, RJValue>::get(value[1]));
+        return std::make_pair(Deserialize<Arg1, RJValue>::get(value[0], error),
+                              Deserialize<Arg2, RJValue>::get(value[1], error));
     }
 };
 
@@ -217,9 +218,10 @@ struct Deserialize<boost::any, RJValue> {
             return value.GetBool();
         } else if (value.IsObject()) {
             return Deserialize<std::map<std::string, boost::any>, RJValue>::get(
-                value);
+                value, error);
         } else if (value.IsArray()) {
-            return Deserialize<std::vector<boost::any>, RJValue>::get(value);
+            return Deserialize<std::vector<boost::any>, RJValue>::get(value,
+                                                                      error);
         }
 
         PAJLADA_REPORT_ERROR(error)
