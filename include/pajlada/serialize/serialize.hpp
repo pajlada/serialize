@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pajlada/serialize/common.hpp>
-
 #include <rapidjson/document.h>
+
+#include <pajlada/serialize/common.hpp>
 
 #ifdef PAJLADA_BOOST_ANY_SUPPORT
 #include <boost/any.hpp>
@@ -39,6 +39,34 @@ struct Serialize {
     {
         RJValue ret(value);
 
+        return ret;
+    }
+};
+
+template <typename RJValue>
+struct Serialize<float, RJValue> {
+    static RJValue
+    get(const float &value, typename RJValue::AllocatorType &)
+    {
+        if (std::isnan(value) || std::isinf(value)) {
+            return RJValue{rapidjson::kNullType};
+        }
+
+        RJValue ret(value);
+        return ret;
+    }
+};
+
+template <typename RJValue>
+struct Serialize<double, RJValue> {
+    static RJValue
+    get(const double &value, typename RJValue::AllocatorType &)
+    {
+        if (std::isnan(value) || std::isinf(value)) {
+            return RJValue{rapidjson::kNullType};
+        }
+
+        RJValue ret(value);
         return ret;
     }
 };
