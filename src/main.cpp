@@ -44,3 +44,55 @@ TEST(Serialize, SerializeArrayMismatchingSize)
     auto out = Deserialize<std::array<int, 3>>::get(middle, &error);
     EXPECT_TRUE(error);
 }
+
+
+TEST(Serialize, Float)
+{
+    float in = 3.7f;
+
+    rapidjson::Document d;
+    auto middle = Serialize<float>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    bool error = false;
+    auto out = Deserialize<float>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_FLOAT_EQ(in, out);
+}
+
+
+TEST(Serialize, FloatNaN)
+{
+    // Infinity should serialize to NULL
+    float in = std::numeric_limits<float>::infinity();
+
+    rapidjson::Document d;
+    auto middle = Serialize<float>::get(in, d.GetAllocator());
+
+    EXPECT_FALSE(middle.IsNumber());
+    EXPECT_TRUE(middle.IsNull());
+
+    // NULL should deserialize to NaN
+    bool error = false;
+    auto out = Deserialize<float>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_TRUE(std::isnan(out));
+}
+
+TEST(Serialize, FloatString)
+{
+    std::string in = "3.7";
+
+    rapidjson::Document d;
+    auto middle = Serialize<std::string>::get(in, d.GetAllocator());
+
+    EXPECT_FALSE(middle.IsNumber());
+    EXPECT_TRUE(middle.IsString());
+
+    bool error = false;
+    auto out = Deserialize<float>::get(middle, &error);
+    EXPECT_TRUE(error);
+}

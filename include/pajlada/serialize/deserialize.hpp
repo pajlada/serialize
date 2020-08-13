@@ -77,6 +77,10 @@ struct Deserialize<double, RJValue> {
     static double
     get(const RJValue &value, bool *error = nullptr)
     {
+        if (value.IsNull()) {
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+
         if (!value.IsNumber()) {
             PAJLADA_REPORT_ERROR(error)
             return double{};
@@ -91,6 +95,10 @@ struct Deserialize<float, RJValue> {
     static float
     get(const RJValue &value, bool *error = nullptr)
     {
+        if (value.IsNull()) {
+            return std::numeric_limits<float>::quiet_NaN();
+        }
+
         if (!value.IsNumber()) {
             PAJLADA_REPORT_ERROR(error)
             return float{};
