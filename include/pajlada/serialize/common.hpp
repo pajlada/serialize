@@ -53,8 +53,17 @@ GetNumber(const RJValue &value)
     if (value.IsFloat()) {
         return Round<Type>(value.GetFloat());
     }
+    if (value.IsInt64()) {
+        return value.GetInt64();
+    }
+    if (value.IsUint64()) {
+        return value.GetUint64();
+    }
     if (value.IsInt()) {
         return value.GetInt();
+    }
+    if (value.IsUint()) {
+        return value.GetUint();
     }
 
     return Type{};
