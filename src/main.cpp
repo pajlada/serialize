@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+
+#include <array>
 #include <pajlada/serialize.hpp>
 
 using namespace pajlada;

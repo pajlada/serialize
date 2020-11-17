@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_CURRENT_LIST_DIR}/.cmake"
+    )
+
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
 
@@ -16,13 +20,18 @@ add_library(PajladaSerialize INTERFACE)
 
 target_include_directories(PajladaSerialize INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
+target_link_libraries(PajladaSerialize INTERFACE RapidJSON::RapidJSON)
+
+find_package(RapidJSON REQUIRED MODULE)
+
 if (BUILD_TESTS)
     message("++ Tests enabled")
-    # find_package(GTest)
 
     add_subdirectory(external/googletest)
 
     enable_testing()
+    include(GoogleTest)
+    # find_package(GTest REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/external/googletest/googletest)
 
     include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
@@ -32,10 +41,9 @@ if (BUILD_TESTS)
 
     add_definitions(-DPAJLADA_TESTING)
 
-    target_link_libraries(serialize-test gtest gtest_main)
+    target_link_libraries(serialize-test PajladaSerialize gtest gtest_main)
 
-    # gtest_discover_tests(serialize-test)
-    add_test(UnitTests serialize-test)
+    gtest_discover_tests(serialize-test)
 
     set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.travis/cmake)
 
