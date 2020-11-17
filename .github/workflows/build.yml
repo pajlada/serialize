@@ -1,0 +1,48 @@
+---
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:  # TODO: support windows
+        os: [ubuntu-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get update && sudo apt-get -y install rapidjson-dev
+
+      # MACOS
+      - name: Install dependencies (MacOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+            brew install boost rapidjson
+        shell: bash
+
+      - name: Build
+        run: |
+            mkdir build
+            cd build
+            cmake -DBUILD_TESTS=1 ..
+            cmake --build .
+
+      - name: Test
+        run: |
+            cd build
+            ctest
