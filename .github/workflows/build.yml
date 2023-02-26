@@ -15,8 +15,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:  # TODO: support windows
-        os: [ubuntu-latest, macos-latest]
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
       fail-fast: false
 
     steps:
@@ -24,6 +24,7 @@ jobs:
         with:
           submodules: recursive
 
+      # Ubuntu
       - name: Install dependencies (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: sudo apt-get update && sudo apt-get -y install rapidjson-dev
@@ -33,6 +34,19 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
             brew install boost rapidjson
+        shell: bash
+
+      # Windows
+      - name: Enable Developer Command Prompt
+        if: startsWith(matrix.os, 'windows')
+        uses: ilammy/msvc-dev-cmd@v1.12.1
+
+      - name: Install dependencies (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+            git clone https://github.com/Tencent/rapidjson.git .ci.rapidjson --depth 1
+            echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/.ci.rapidjson/include/rapidjson" >> "$GITHUB_ENV"
+            echo "CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Build

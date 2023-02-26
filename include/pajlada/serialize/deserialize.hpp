@@ -170,7 +170,7 @@ struct Deserialize<std::array<ValueType, Size>, RJValue> {
     static std::array<ValueType, Size>
     get(const RJValue &value, bool *error = nullptr)
     {
-        std::array<ValueType, Size> ret;
+        std::array<ValueType, Size> ret{};
 
         if (!value.IsArray()) {
             PAJLADA_REPORT_ERROR(error)
