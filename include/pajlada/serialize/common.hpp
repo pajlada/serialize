@@ -30,11 +30,11 @@ typename std::enable_if<std::is_integral<T1>::value, T1>::type
 Round(T2 value)
 {
 #if PAJLADA_ROUNDING_METHOD == PAJLADA_ROUNDING_METHOD_ROUND
-    return round(value);
+    return static_cast<T1>(round(value));
 #elif PAJLADA_ROUNDING_METHOD == PAJLADA_ROUNDING_METHOD_CEIL
-    return ceil(value);
+    return static_cast<T1>(ceil(value));
 #elif PAJLADA_ROUNDING_METHOD == PAJLADA_ROUNDING_METHOD_FLOOR
-    return floor(value);
+    return static_cast<T1>(floor(value));
 #else
     static_assert(
         "Invalid rounding method selected in PAJLADA_ROUNDING_METHOD");
