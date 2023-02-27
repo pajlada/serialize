@@ -18,9 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: DoozyX/clang-format-lint-action@v0.14
+      - uses: jidicula/clang-format-action@v4.10.2
         with:
-          clangFormatVersion: 15
+          clang-format-version: '15'
 
       - uses: actionsx/prettier@v2
         with:
