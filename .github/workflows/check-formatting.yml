@@ -20,7 +20,7 @@ jobs:
 
       - uses: jidicula/clang-format-action@v4.10.2
         with:
-          clang-format-version: '15'
+          clang-format-version: "15"
 
       - uses: actionsx/prettier@v2
         with:
