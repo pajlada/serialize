@@ -60,4 +60,18 @@ if (BUILD_TESTS)
         SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
         SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
     endif()
+
+    # Enable strict compiler settings
+    if (MSVC)
+        # Someone adds /W3 before we add /W4.
+        # This makes sure, only /W4 is specified.
+        string(REPLACE "/W3" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+        target_compile_options(serialize-test PUBLIC
+            /W4
+            /WX # treat warnings as errors
+        )
+    else()
+        target_compile_options(serialize-test PUBLIC -Wall -Werror)
+    endif()
 endif()
