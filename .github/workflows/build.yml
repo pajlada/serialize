@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies (MacOS)
         if: startsWith(matrix.os, 'macos')
         run: |
-            brew install boost rapidjson
+          brew install boost rapidjson
         shell: bash
 
       # Windows
@@ -40,19 +40,19 @@ jobs:
       - name: Install dependencies (Windows)
         if: startsWith(matrix.os, 'windows')
         run: |
-            git clone https://github.com/Tencent/rapidjson.git .ci.rapidjson --depth 1
-            echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/.ci.rapidjson/include/rapidjson" >> "$GITHUB_ENV"
-            echo "CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
+          git clone https://github.com/Tencent/rapidjson.git .ci.rapidjson --depth 1
+          echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/.ci.rapidjson/include/rapidjson" >> "$GITHUB_ENV"
+          echo "CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Build
         run: |
-            mkdir build
-            cd build
-            cmake -DBUILD_TESTS=1 ..
-            cmake --build .
+          mkdir build
+          cd build
+          cmake -DBUILD_TESTS=1 ..
+          cmake --build .
 
       - name: Test
         run: |
-            cd build
-            ctest
+          cd build
+          ctest
