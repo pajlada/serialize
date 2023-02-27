@@ -45,8 +45,8 @@ TEST(Serialize, SerializeArrayMismatchingSize)
     bool error = false;
     auto out = Deserialize<std::array<int, 3>>::get(middle, &error);
     EXPECT_TRUE(error);
+    EXPECT_EQ(out, (std::array<int, 3>{0, 0, 0}));
 }
-
 
 TEST(Serialize, Float)
 {
@@ -63,7 +63,6 @@ TEST(Serialize, Float)
 
     EXPECT_FLOAT_EQ(in, out);
 }
-
 
 TEST(Serialize, FloatNaN)
 {
@@ -97,4 +96,5 @@ TEST(Serialize, FloatString)
     bool error = false;
     auto out = Deserialize<float>::get(middle, &error);
     EXPECT_TRUE(error);
+    EXPECT_FLOAT_EQ(out, 0.0f);
 }

@@ -182,7 +182,8 @@ struct Deserialize<std::array<ValueType, Size>, RJValue> {
             return ret;
         }
 
-        for (size_t i = 0; i < Size; ++i) {
+        auto size = static_cast<rapidjson::SizeType>(Size);
+        for (rapidjson::SizeType i = 0; i < size; ++i) {
             ret[i] = Deserialize<ValueType, RJValue>::get(value[i], error);
         }
 
