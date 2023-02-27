@@ -1,1 +1,11 @@
 build
+
+# Used in windows-ci
+.ci.rapidjson
+
+# Editors
+.vscode
+.idea
+
+# clangd cache
+.cache

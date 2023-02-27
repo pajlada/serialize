@@ -27,6 +27,10 @@ find_package(RapidJSON REQUIRED MODULE)
 if (BUILD_TESTS)
     message("++ Tests enabled")
 
+    # For MSVC: Prevent overriding the parent project's compiler/linker settings
+    # See https://github.com/google/googletest/blob/main/googletest/README.md#visual-studio-dynamic-vs-static-runtimes
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
     add_subdirectory(external/googletest)
 
     enable_testing()
