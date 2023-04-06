@@ -82,6 +82,19 @@ struct Serialize<std::string, RJValue> {
     }
 };
 
+template <typename RJValue>
+struct Serialize<std::string_view, RJValue> {
+    static RJValue
+    get(const std::string_view &value, typename RJValue::AllocatorType &a)
+    {
+        rapidjson::GenericStringRef<char> ref(
+            value.data(), static_cast<rapidjson::SizeType>(value.size()));
+        RJValue ret(ref, a);
+
+        return ret;
+    }
+};
+
 template <typename Arg1, typename Arg2, typename RJValue>
 struct Serialize<std::pair<Arg1, Arg2>, RJValue> {
     static RJValue
