@@ -122,6 +122,20 @@ struct Deserialize<std::string, RJValue> {
     }
 };
 
+template <typename RJValue>
+struct Deserialize<std::string_view, RJValue> {
+    static std::string_view
+    get(const RJValue &value, bool *error = nullptr)
+    {
+        if (!value.IsString()) {
+            PAJLADA_REPORT_ERROR(error)
+            return std::string_view{};
+        }
+
+        return {value.GetString(), value.GetStringLength()};
+    }
+};
+
 template <typename ValueType, typename RJValue>
 struct Deserialize<std::map<std::string, ValueType>, RJValue> {
     static std::map<std::string, ValueType>
