@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/document.h>
 
 #include <array>
 #include <pajlada/serialize.hpp>
@@ -142,4 +144,19 @@ TEST(Serialize, StringViewToStringView)
     auto out = Deserialize<std::string_view>::get(middle, &error);
     EXPECT_FALSE(error);
     EXPECT_EQ(out, "forsen");
+}
+
+TEST(Serialize, EmptyStringView)
+{
+    std::string_view in;
+
+    rapidjson::Document d;
+    auto middle = Serialize<std::string_view>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsString());
+
+    bool error = false;
+    auto out = Deserialize<std::string_view>::get(middle, &error);
+    EXPECT_FALSE(error);
+    EXPECT_EQ(out, "");
 }

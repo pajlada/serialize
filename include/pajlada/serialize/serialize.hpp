@@ -87,8 +87,11 @@ struct Serialize<std::string_view, RJValue> {
     static RJValue
     get(const std::string_view &value, typename RJValue::AllocatorType &a)
     {
+        // Workaround for older rapidjson versions:
+        // GenericStringRef and nullpointers (empty strings) wasn't supported.
+        const auto *data = value.data();
         rapidjson::GenericStringRef<char> ref(
-            value.data(), static_cast<rapidjson::SizeType>(value.size()));
+            data ? data : "", static_cast<rapidjson::SizeType>(value.size()));
         RJValue ret(ref, a);
 
         return ret;
