@@ -2,15 +2,11 @@
 
 #include <rapidjson/document.h>
 
-#include <pajlada/serialize/common.hpp>
-
-#ifdef PAJLADA_BOOST_ANY_SUPPORT
-#include <boost/any.hpp>
-#endif
-
+#include <any>
 #include <cassert>
 #include <cmath>
 #include <map>
+#include <pajlada/serialize/common.hpp>
 #include <stdexcept>
 #include <typeinfo>
 #include <vector>
@@ -160,15 +156,14 @@ struct Serialize<std::array<ValueType, Size>, RJValue> {
     }
 };
 
-#ifdef PAJLADA_BOOST_ANY_SUPPORT
 template <typename RJValue>
-struct Serialize<boost::any, RJValue> {
+struct Serialize<std::any, RJValue> {
     static RJValue
-    get(const boost::any &value, typename RJValue::AllocatorType &a)
+    get(const std::any &value, typename RJValue::AllocatorType &a)
     {
-        using boost::any_cast;
+        using std::any_cast;
 
-        if (value.empty()) {
+        if (!value.has_value()) {
             return RJValue(rapidjson::kNullType);
         }
 
@@ -186,23 +181,22 @@ struct Serialize<boost::any, RJValue> {
         } else if (value.type() == typeid(const char *)) {
             return Serialize<std::string, RJValue>::get(
                 any_cast<const char *>(value), a);
-        } else if (value.type() == typeid(std::map<std::string, boost::any>)) {
-            return Serialize<std::map<std::string, boost::any>, RJValue>::get(
-                any_cast<std::map<std::string, boost::any>>(value), a);
-        } else if (value.type() == typeid(std::vector<boost::any>)) {
-            return Serialize<std::vector<boost::any>, RJValue>::get(
-                any_cast<std::vector<boost::any>>(value), a);
+        } else if (value.type() == typeid(std::map<std::string, std::any>)) {
+            return Serialize<std::map<std::string, std::any>, RJValue>::get(
+                any_cast<std::map<std::string, std::any>>(value), a);
+        } else if (value.type() == typeid(std::vector<std::any>)) {
+            return Serialize<std::vector<std::any>, RJValue>::get(
+                any_cast<std::vector<std::any>>(value), a);
         } else if (value.type() == typeid(std::vector<std::string>)) {
             return Serialize<std::vector<std::string>, RJValue>::get(
                 any_cast<std::vector<std::string>>(value), a);
         } else {
-            // PS_DEBUG("[boost::any] Serialize: Unknown type of value");
+            // PS_DEBUG("[std::any] Serialize: Unknown type of value");
         }
 
         return RJValue(rapidjson::kNullType);
     }
 };
-#endif
 
 namespace detail {
 
