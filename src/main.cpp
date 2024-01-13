@@ -257,3 +257,257 @@ TEST(Serialize, ComplexAnyMap)
     EXPECT_TRUE(any_cast<int>(innerArrayMap["b"]) == 2);
     EXPECT_TRUE(any_cast<int>(innerArrayMap["c"]) == 3);
 }
+
+TEST(Serialize, Int)
+{
+    int in = 37;
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_TRUE(
+        middle
+            .IsUint());  // The JSON number type represents all integral values the same, so all of these are expected to be true assuming the value could potentially fit
+    EXPECT_TRUE(
+        middle
+            .IsUint64());  // The JSON number type represents all integral values the same, so all of these are expected to be true assuming the value could potentially fit
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, NegativeInt)
+{
+    int in = -37;
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_FALSE(middle.IsUint());
+    EXPECT_FALSE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Int64Max)
+{
+    int64_t in = std::numeric_limits<decltype(in)>::max();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_FALSE(middle.IsInt());
+    EXPECT_FALSE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Int64Min)
+{
+    int64_t in = std::numeric_limits<decltype(in)>::min();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_FALSE(middle.IsInt());
+    EXPECT_FALSE(middle.IsUint());
+    EXPECT_FALSE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Int32Max)
+{
+    int32_t in = std::numeric_limits<decltype(in)>::max();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_TRUE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Int32Min)
+{
+    int32_t in = std::numeric_limits<decltype(in)>::min();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_FALSE(middle.IsUint());
+    EXPECT_FALSE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Uint32Max)
+{
+    uint32_t in = std::numeric_limits<decltype(in)>::max();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_FALSE(middle.IsInt());
+    EXPECT_TRUE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Uint32Min)
+{
+    uint32_t in = std::numeric_limits<decltype(in)>::min();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_TRUE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Uint64Max)
+{
+    uint64_t in = std::numeric_limits<decltype(in)>::max();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_FALSE(middle.IsInt());
+    EXPECT_FALSE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_FALSE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
+
+TEST(Serialize, Uint64Min)
+{
+    uint64_t in = std::numeric_limits<decltype(in)>::min();
+
+    rapidjson::Document d;
+    auto middle = Serialize<decltype(in)>::get(in, d.GetAllocator());
+
+    EXPECT_TRUE(middle.IsNumber());
+
+    EXPECT_TRUE(middle.IsInt());
+    EXPECT_TRUE(middle.IsUint());
+    EXPECT_TRUE(middle.IsUint64());
+    EXPECT_TRUE(middle.IsInt64());
+
+    EXPECT_FALSE(middle.IsFloat());
+    EXPECT_FALSE(middle.IsDouble());
+
+    bool error = false;
+    auto out = Deserialize<decltype(in)>::get(middle, &error);
+    EXPECT_FALSE(error);
+
+    EXPECT_EQ(typeid(in), typeid(out));
+    EXPECT_EQ(in, out);
+}
