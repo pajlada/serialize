@@ -2,15 +2,11 @@
 
 #include <rapidjson/document.h>
 
-#include <pajlada/serialize/common.hpp>
-
-#ifdef PAJLADA_BOOST_ANY_SUPPORT
-#include <boost/any.hpp>
-#endif
-
+#include <any>
 #include <cassert>
 #include <cmath>
 #include <map>
+#include <pajlada/serialize/common.hpp>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
@@ -225,10 +221,9 @@ struct Deserialize<std::pair<Arg1, Arg2>, RJValue> {
     }
 };
 
-#ifdef PAJLADA_BOOST_ANY_SUPPORT
 template <typename RJValue>
-struct Deserialize<boost::any, RJValue> {
-    static boost::any
+struct Deserialize<std::any, RJValue> {
+    static std::any
     get(const RJValue &value, bool *error = nullptr)
     {
         if (value.IsInt()) {
@@ -240,17 +235,16 @@ struct Deserialize<boost::any, RJValue> {
         } else if (value.IsBool()) {
             return value.GetBool();
         } else if (value.IsObject()) {
-            return Deserialize<std::map<std::string, boost::any>, RJValue>::get(
+            return Deserialize<std::map<std::string, std::any>, RJValue>::get(
                 value, error);
         } else if (value.IsArray()) {
-            return Deserialize<std::vector<boost::any>, RJValue>::get(value,
-                                                                      error);
+            return Deserialize<std::vector<std::any>, RJValue>::get(value,
+                                                                    error);
         }
 
         PAJLADA_REPORT_ERROR(error)
-        return boost::any();
+        return {};
     }
 };
-#endif
 
 }  // namespace pajlada
