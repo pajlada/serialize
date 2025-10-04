@@ -1,77 +1,41 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.15...4.1.1)
 
-list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_CURRENT_LIST_DIR}/.cmake"
-    )
+list(APPEND CMAKE_MESSAGE_CONTEXT PajladaSerialize)
+project(
+    PajladaSerialize
+    VERSION 0.1.0
+    DESCRIPTION "pajlada serialize library"
+    HOMEPAGE_URL https://github.com/pajlada/serialize
+    LANGUAGES CXX
+)
 
-set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
-
-project(serialize)
-
-include_directories(include)
-
-# Enable C++17
 set(CMAKE_CXX_STANDARD 17)
-# set_property(TARGET serialize-test PROPERTY CXX_STANDARD 17)
-# set_property(TARGET serialize-test PROPERTY CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(FetchContent)
+
+option(PAJLADA_SERIALIZE_BUILD_TESTS "Build tests" OFF)
+
+FetchContent_Declare(
+    RapidJSON
+    EXCLUDE_FROM_ALL
+    FIND_PACKAGE_ARGS REQUIRED
+)
+
+FetchContent_MakeAvailable(RapidJSON)
 
 add_library(PajladaSerialize INTERFACE)
+add_library(Pajlada::Serialize ALIAS PajladaSerialize)
 
-target_include_directories(PajladaSerialize INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_include_directories(PajladaSerialize INTERFACE include)
+if(TARGET rapidjson)
+    target_link_libraries(PajladaSerialize INTERFACE rapidjson)
+else()
+    message(DEBUG "No rapidjson target found, this is most likely a system install. Adding include directories (${RAPIDJSON_INCLUDE_DIRS}) instead")
+    target_include_directories(PajladaSerialize SYSTEM INTERFACE ${RAPIDJSON_INCLUDE_DIRS})
+endif()
 
-target_link_libraries(PajladaSerialize INTERFACE RapidJSON::RapidJSON)
-
-find_package(RapidJSON REQUIRED MODULE)
-
-if (BUILD_TESTS)
-    message("++ Tests enabled")
-
-    # For MSVC: Prevent overriding the parent project's compiler/linker settings
-    # See https://github.com/google/googletest/blob/main/googletest/README.md#visual-studio-dynamic-vs-static-runtimes
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    add_subdirectory(external/googletest)
-
+if(PAJLADA_SERIALIZE_BUILD_TESTS)
     enable_testing()
-    include(GoogleTest)
-    # find_package(GTest REQUIRED PATHS ${CMAKE_CURRENT_LIST_DIR}/external/googletest/googletest)
-
-    include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
-    add_executable(serialize-test
-        src/main.cpp
-        )
-
-    add_definitions(-DPAJLADA_TESTING)
-
-    target_link_libraries(serialize-test PajladaSerialize gtest gtest_main)
-
-    gtest_discover_tests(serialize-test)
-
-    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/.travis/cmake)
-
-    if (BUILD_COVERAGE)
-        message("++ Coverage enabled")
-        include(CodeCoverage)
-
-        setup_target_for_coverage(serialize-test-coverage serialize-test coverage)
-
-        SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-        SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
-    endif()
-
-    # Enable strict compiler settings
-    if (MSVC)
-        # Someone adds /W3 before we add /W4.
-        # This makes sure, only /W4 is specified.
-        string(REPLACE "/W3" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
-        target_compile_options(serialize-test PUBLIC
-            /W4
-            /WX # treat warnings as errors
-        )
-    else()
-        target_compile_options(serialize-test PUBLIC -Wall -Werror)
-    endif()
+    add_subdirectory(tests)
 endif()
