@@ -1,0 +1,51 @@
+---
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: recursive
+
+      # Windows
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.12.1
+
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          cache-dependency-glob: "" # we have recursive symlinks
+
+      - name: Install Conan
+        run: |
+          uv tool install conan
+          conan --version
+          conan profile detect
+
+      - name: Build
+        shell: pwsh
+        run: |
+          mkdir build
+          cd build
+          cmake `
+            --preset debug-conan `
+            ..
+          cmake --build .
+
+      - name: Test
+        working-directory: build
+        run: |
+          ctest

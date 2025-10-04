@@ -1,0 +1,54 @@
+---
+name: Build macOS
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+        package-manager: [conan, none]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        if: matrix.package-manager != 'conan'
+        run: |
+          brew install rapidjson
+
+      - name: Install the latest version of uv
+        if: matrix.package-manager == 'conan'
+        uses: astral-sh/setup-uv@v6
+        with:
+          cache-dependency-glob: "" # we have recursive symlinks
+
+      - name: Install Conan
+        if: matrix.package-manager == 'conan'
+        run: |
+          uv tool install conan
+          conan --version
+          conan profile detect
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake \
+            --preset ${{ matrix.package-manager == 'conan' && 'debug-conan' || 'debug' }} \
+            ..
+          cmake --build .
+
+      - name: Test
+        working-directory: build
+        run: |
+          ctest

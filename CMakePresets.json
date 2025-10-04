@@ -18,6 +18,14 @@
       }
     },
     {
+      "name": "debug-conan",
+      "displayName": "Debug (conan)",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/conan_provider.cmake"
+      }
+    },
+    {
       "name": "asan-base",
       "hidden": true,
       "cacheVariables": {
