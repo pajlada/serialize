@@ -27,6 +27,9 @@ FetchContent_MakeAvailable(RapidJSON)
 add_library(PajladaSerialize INTERFACE)
 add_library(Pajlada::Serialize ALIAS PajladaSerialize)
 
+# Enable std::string overloads
+target_compile_definitions(PajladaSerialize INTERFACE RAPIDJSON_HAS_STDSTRING=1)
+
 target_include_directories(PajladaSerialize INTERFACE include)
 if(TARGET rapidjson)
     target_link_libraries(PajladaSerialize INTERFACE rapidjson)
