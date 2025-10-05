@@ -26,6 +26,14 @@
       }
     },
     {
+      "name": "debug-conan-coverage",
+      "displayName": "Debug with coverage (conan)",
+      "inherits": "debug-coverage",
+      "cacheVariables": {
+        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/conan_provider.cmake"
+      }
+    },
+    {
       "name": "asan-base",
       "hidden": true,
       "cacheVariables": {
