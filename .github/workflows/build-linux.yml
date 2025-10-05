@@ -10,25 +10,41 @@ on:
   schedule:
     - cron: "0 1 * * *"
 
+concurrency:
+  group: build-linux-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Build on ${{ matrix.os }}${{ matrix.package-manager == 'conan' && ' (Conan)' || ''}}
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        os: [ubuntu-latest]
-        package-manager: [conan, none]
       fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            package-manager: none
+          - os: ubuntu-latest
+            package-manager: conan
+            upload-coverage: true
 
+    env:
+      CONFIGURE_PRESET: ${{ matrix.package-manager == 'conan' && (matrix.skip-coverage && 'debug-conan' || 'debug-conan-coverage') || (matrix.skip-coverage && 'debug' || 'debug-coverage') }}
     steps:
       - uses: actions/checkout@v5.0.0
         with:
-          submodules: recursive
+          submodules: true
 
-      - name: Install dependencies
+      - name: Install package dependencies
         if: matrix.package-manager != 'conan'
         run: |
           sudo apt-get update
           sudo apt-get -y install rapidjson-dev
+
+      - name: Install coverage dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install gcovr
 
       - name: Install the latest version of uv
         if: matrix.package-manager == 'conan'
@@ -43,16 +59,27 @@ jobs:
           conan --version
           conan profile detect
 
+      - name: Setup environment
+        run: mkdir build
+
       - name: Build
         run: |
-          mkdir build
-          cd build
-          cmake \
-            --preset ${{ matrix.package-manager == 'conan' && 'debug-conan' || 'debug' }} \
-            ..
-          cmake --build .
-
-      - name: Test
+          cmake --preset ${{ env.CONFIGURE_PRESET }} ..
+          cmake --build . --config Debug --parallel
         working-directory: build
-        run: |
-          ctest
+
+      - name: Run tests
+        run: ctest --output-on-failure
+        working-directory: build
+
+      - name: Generate coverage
+        if: endsWith(env.SETTINGS_CONFIGURE_PRESET, '-coverage')
+        run: make coverage
+        working-directory: build
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.upload-coverage
+        uses: codecov/codecov-action@v5.5.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
