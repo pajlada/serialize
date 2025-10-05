@@ -19,10 +19,12 @@ jobs:
         package-manager: [conan, none]
       fail-fast: false
 
+    env:
+      CONFIGURE_PRESET: ${{ matrix.skip-coverage && 'debug' || 'debug-coverage'}}
     steps:
       - uses: actions/checkout@v5.0.0
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Install dependencies
         if: matrix.package-manager != 'conan'
@@ -43,16 +45,27 @@ jobs:
           conan --version
           conan profile detect
 
+      - name: Setup environment
+        run: mkdir build
+
       - name: Build
         run: |
-          mkdir build
-          cd build
-          cmake \
-            --preset ${{ matrix.package-manager == 'conan' && 'debug-conan' || 'debug' }} \
-            ..
-          cmake --build .
-
-      - name: Test
+          cmake --preset ${{ env.CONFIGURE_PRESET }} ..
+          cmake --build . --config Debug --parallel
         working-directory: build
-        run: |
-          ctest
+
+      - name: Run tests
+        run: ctest --output-on-failure
+        working-directory: build
+
+      - name: Generate coverage
+        if: endsWith(env.SETTINGS_CONFIGURE_PRESET, '-coverage')
+        run: make coverage
+        working-directory: build
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.upload-coverage
+        uses: codecov/codecov-action@v5.5.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
