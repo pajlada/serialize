@@ -30,7 +30,7 @@ jobs:
         if: matrix.package-manager != 'conan'
         run: |
           sudo apt-get update
-          sudo apt-get -y install rapidjson-dev
+          sudo apt-get -y install rapidjson-dev gcovr
 
       - name: Install the latest version of uv
         if: matrix.package-manager == 'conan'
