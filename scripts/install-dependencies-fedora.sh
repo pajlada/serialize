@@ -1,6 +1,8 @@
 #!/bin/sh
 
-echo "build type $BUILD_TYPE"
+set -e
+
+echo "Build type: ${BUILD_TYPE}"
 
 if [ "$BUILD_TYPE" = "conan" ]; then
     dnf install --assumeyes conan

@@ -2,8 +2,6 @@
 
 _fedora_versions=("41" "42" "43" "44")
 _build_types=("system" "conan" "submodule")
-# _fedora_versions=("41")
-# _build_types=("submodule")
 
 for _fedora_version in "${_fedora_versions[@]}"; do
     for _build_type in "${_build_types[@]}"; do
