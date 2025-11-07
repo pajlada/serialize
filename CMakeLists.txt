@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.15...4.1.1)
+set(CMAKE_EXPORT_NO_PACKAGE_REGISTRY On) # For rapidjson
 
 list(APPEND CMAKE_MESSAGE_CONTEXT PajladaSerialize)
 project(
@@ -17,7 +18,7 @@ include(FetchContent)
 option(PAJLADA_SERIALIZE_BUILD_TESTS "Build tests" OFF)
 
 FetchContent_Declare(
-    rjlib
+    rapidjson
     SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/external/rapidjson
     EXCLUDE_FROM_ALL
     FIND_PACKAGE_ARGS NAMES RapidJSON
@@ -25,7 +26,7 @@ FetchContent_Declare(
 set(RAPIDJSON_BUILD_EXAMPLES Off CACHE INTERNAL "")
 set(RAPIDJSON_BUILD_TESTS Off CACHE INTERNAL "")
 
-FetchContent_MakeAvailable(rjlib)
+FetchContent_MakeAvailable(rapidjson)
 
 add_library(PajladaSerialize INTERFACE)
 add_library(Pajlada::Serialize ALIAS PajladaSerialize)
