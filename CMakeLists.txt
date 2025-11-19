@@ -34,7 +34,10 @@ add_library(Pajlada::Serialize ALIAS PajladaSerialize)
 # Enable std::string overloads
 target_compile_definitions(PajladaSerialize INTERFACE RAPIDJSON_HAS_STDSTRING=1)
 
-target_include_directories(PajladaSerialize INTERFACE include)
+target_include_directories(PajladaSerialize INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 if(TARGET rapidjson)
     message(DEBUG "Linking to rapidjson target")
     target_link_libraries(PajladaSerialize INTERFACE rapidjson)
@@ -50,3 +53,7 @@ if(PAJLADA_SERIALIZE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+install(TARGETS PajladaSerialize EXPORT PajladaSerializeTargets)
+install(EXPORT PajladaSerializeTargets DESTINATION lib/cmake/PajladaSerialize)
+install(DIRECTORY include DESTINATION include)
