@@ -1,6 +1,9 @@
 /build
 /build-*
 
+/examples/*/build
+/examples/*/build-*
+
 # Used in windows-ci
 .ci.rapidjson
 
