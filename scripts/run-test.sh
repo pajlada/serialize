@@ -13,9 +13,9 @@ fi
 mkdir build && cd build
 
 if [ "$BUILD_TYPE" = "conan" ]; then
-    cmake -GNinja --log-level=DEBUG --log-context --debug-output --preset debug-conan ..
+    cmake -GNinja --log-level=DEBUG --log-context --debug-output --debug-find --preset debug-conan ..
 else
-    cmake -GNinja --log-level=DEBUG --log-context --debug-output --preset debug ..
+    cmake -GNinja --log-level=DEBUG --log-context --debug-output --debug-find --preset debug ..
 fi
 
 cmake --build .
