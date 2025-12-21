@@ -1,0 +1,5 @@
+@PACKAGE_INIT@
+
+include(${CMAKE_CURRENT_LIST_DIR}/PajladaSerializeTargets.cmake)
+
+add_library(PajladaSerialize ALIAS Pajlada::Serialize)
