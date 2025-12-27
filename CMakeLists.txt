@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25...4.1.1)
 list(APPEND CMAKE_MESSAGE_CONTEXT PajladaSerialize)
 project(
     PajladaSerialize
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "pajlada serialize library"
     HOMEPAGE_URL https://github.com/pajlada/serialize
     LANGUAGES CXX
