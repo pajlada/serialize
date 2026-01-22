@@ -31,7 +31,7 @@ jobs:
     env:
       CONFIGURE_PRESET: ${{ matrix.package-manager == 'conan' && (matrix.skip-coverage && 'debug-conan' || 'debug-conan-coverage') || (matrix.skip-coverage && 'debug' || 'debug-coverage') }}
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
         with:
           submodules: true
 
