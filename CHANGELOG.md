@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Dev: Removed the builtin CMake namespace during export. (#46)
+
 ## v0.2.0
 
 - Breaking: Removed (de-)serialization support for `boost::any`. (#10)
