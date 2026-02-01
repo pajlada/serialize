@@ -23,7 +23,7 @@ add_library(Pajlada::Serialize ALIAS PajladaSerialize)
 set_target_properties(PajladaSerialize PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
-    EXPORT_NAME Serialize
+    EXPORT_NAME PajladaSerialize
 )
 
 add_subdirectory(include)
@@ -48,7 +48,6 @@ if(PAJLADA_SERIALIZE_INSTALL)
     # Export(?) & install the Targets.cmake file
     install(EXPORT SerializeTargets
         FILE PajladaSerializeTargets.cmake
-        NAMESPACE "Pajlada::"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
     )
 
