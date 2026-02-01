@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.2.1
+
 - Dev: Removed the builtin CMake namespace during export. (#46)
 
 ## v0.2.0
