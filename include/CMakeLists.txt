@@ -5,6 +5,7 @@ target_sources(PajladaSerialize INTERFACE
     pajlada/serialize/deserialize.hpp
     pajlada/serialize/serialize.hpp
     pajlada/serialize/internal.hpp
+    pajlada/serialize/internal-typename.hpp
 )
 
 target_include_directories(PajladaSerialize INTERFACE
