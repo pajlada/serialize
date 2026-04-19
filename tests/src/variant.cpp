@@ -83,7 +83,7 @@ struct Deserialize<Complex, RJValue> {
 
 TEST(Variant, Two)
 {
-    bool error;
+    bool error = false;
     rapidjson::Document d;
     rapidjson::Value actual;
 
