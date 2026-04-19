@@ -190,7 +190,7 @@ TEST(Variant, Complex)
 
     bool error = false;
     auto out = Deserialize<decltype(in)>::get(actual, &error);
-    ASSERT_ANY_THROW(std::get<std::string>(out));
+    ASSERT_ANY_THROW(auto _ = std::get<std::string>(out));
     auto outComplex = std::get<Complex>(out);
     auto expectedComplex = Complex{
         .a = 3,
