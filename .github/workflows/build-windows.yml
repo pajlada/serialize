@@ -55,4 +55,4 @@ jobs:
       - name: Test
         working-directory: build
         run: |
-          ctest
+          ctest --output-on-failure --verbose
