@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Breaking: Bump minimum required C++ standard from C++17 to C++20. (#55)
+
 ## v0.2.1
 
 - Dev: Removed the builtin CMake namespace during export. (#46)
