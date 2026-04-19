@@ -256,14 +256,21 @@ struct Deserialize<std::variant<InnerTypes...>, RJValue> {
     {
         std::variant<InnerTypes...> ret;
 
-        PSE_DEBUG("deserializing variant");
+        PSE_DEBUG("Attempting to deserialize '"
+                  << internal::pp(value) << "' into " << typeid(ret).name());
 
         bool success = ([&]() -> bool {
             bool innerError = false;
             ret = Deserialize<InnerTypes>::get(value, &innerError);
             if (!innerError) {
+                PSE_DEBUG("Deserialized '"
+                          << internal::pp(value) << "' into "
+                          << internal::type_name<InnerTypes>());
                 return true;
             }
+            PSE_DEBUG("Could not deserialize '"
+                      << internal::pp(value) << "' into "
+                      << internal::type_name<InnerTypes>());
             return false;
         }() || ...);
 
