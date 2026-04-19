@@ -3,6 +3,9 @@ set(CMAKE_EXPORT_NO_PACKAGE_REGISTRY On) # For rapidjson
 
 project(serialize-test)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # For MSVC: Prevent overriding the parent project's compiler/linker settings
 # See https://github.com/google/googletest/blob/main/googletest/README.md#visual-studio-dynamic-vs-static-runtimes
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -39,6 +42,7 @@ enable_testing()
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/unsorted.cpp
+    src/variant.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Pajlada::Serialize)

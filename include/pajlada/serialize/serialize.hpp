@@ -7,8 +7,10 @@
 #include <cmath>
 #include <map>
 #include <pajlada/serialize/common.hpp>
+#include <pajlada/serialize/internal.hpp>
 #include <stdexcept>
 #include <typeinfo>
+#include <variant>
 #include <vector>
 
 namespace pajlada {
@@ -195,6 +197,23 @@ struct Serialize<std::any, RJValue> {
         }
 
         return RJValue(rapidjson::kNullType);
+    }
+};
+
+template <class... InnerTypes, typename RJValue>
+struct Serialize<std::variant<InnerTypes...>, RJValue> {
+    static RJValue
+    get(const std::variant<InnerTypes...> &value,
+        typename RJValue::AllocatorType &a)
+    {
+        PSE_DEBUG("serializing variant");
+
+        return std::visit(
+            [&a](auto &&arg) -> RJValue {
+                using ActualType = std::decay_t<decltype(arg)>;
+                return Serialize<ActualType>::get(arg, a);
+            },
+            value);
     }
 };
 

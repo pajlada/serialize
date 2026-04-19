@@ -7,9 +7,11 @@
 #include <cmath>
 #include <map>
 #include <pajlada/serialize/common.hpp>
+#include <pajlada/serialize/internal.hpp>
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include <variant>
 #include <vector>
 
 namespace pajlada {
@@ -244,6 +246,42 @@ struct Deserialize<std::any, RJValue> {
 
         PAJLADA_REPORT_ERROR(error)
         return {};
+    }
+};
+
+template <class... InnerTypes, typename RJValue>
+struct Deserialize<std::variant<InnerTypes...>, RJValue> {
+    static std::variant<InnerTypes...>
+    get(const RJValue &value, bool *error = nullptr)
+    {
+        std::variant<InnerTypes...> ret;
+
+        PSE_DEBUG("Attempting to deserialize '"
+                  << internal::pp(value) << "' into " << typeid(ret).name());
+
+        bool success = ([&]() -> bool {
+            bool innerError = false;
+            ret = Deserialize<InnerTypes>::get(value, &innerError);
+            if (!innerError) {
+                PSE_DEBUG("Deserialized '"
+                          << internal::pp(value) << "' into "
+                          << internal::type_name<InnerTypes>());
+                return true;
+            }
+            PSE_DEBUG("Could not deserialize '"
+                      << internal::pp(value) << "' into "
+                      << internal::type_name<InnerTypes>());
+            return false;
+        }() || ...);
+
+        if (!success) {
+            if (error != nullptr) {
+                *error = true;
+            }
+            return {};
+        }
+
+        return ret;
     }
 };
 

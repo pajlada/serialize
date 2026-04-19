@@ -6,7 +6,8 @@
 #include <rapidjson/prettywriter.h>  // IWYU pragma: keep
 #include <rapidjson/writer.h>        // IWYU pragma: keep
 
-#include <iostream>  // IWYU pragma: keep
+#include <iostream>                                 // IWYU pragma: keep
+#include <pajlada/serialize/internal-typename.hpp>  // IWYU pragma: keep
 
 #endif
 
