@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Breaking: Bump minimum required C++ standard from C++17 to C++20. (#55)
+- Minor: Added support for (de-)serializing from/to [std::variant](https://en.cppreference.com/w/cpp/utility/variant). (#54)
 
 ## v0.2.1
 
