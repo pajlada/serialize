@@ -13,6 +13,8 @@ include(GoogleTest)
 include(FetchContent)
 
 option(PAJLADA_SERIALIZE_BUILD_COVERAGE "Build coverage" OFF)
+option(PAJLADA_SERIALIZE_VERBOSE_TESTS "Verbose tests" OFF)
+mark_as_advanced(PAJLADA_SERIALIZE_VERBOSE_TESTS)
 
 FetchContent_Declare(
     RapidJSON
@@ -42,6 +44,10 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE Pajlada::Serialize)
 target_link_libraries(${PROJECT_NAME} PRIVATE gtest)
 target_link_libraries(${PROJECT_NAME} PRIVATE gtest_main)
+
+if (PAJLADA_SERIALIZE_VERBOSE_TESTS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PAJLADA_SERIALIZE_LOG_VERBOSE)
+endif ()
 
 if(TARGET rapidjson)
     message(STATUS "Linking to rapidjson target")
