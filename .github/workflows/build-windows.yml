@@ -29,7 +29,7 @@ jobs:
 
       # Windows
       - name: Enable Developer Command Prompt
-        uses: ilammy/msvc-dev-cmd@v1.13.0
+        uses: Chatterino/msvc-dev-cmd@v2.0.5
 
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v7
