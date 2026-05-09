@@ -43,6 +43,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/unsorted.cpp
     src/variant.cpp
+    src/optional.cpp
     )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Pajlada::Serialize)
