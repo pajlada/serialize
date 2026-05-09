@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <pajlada/serialize/common.hpp>
 #include <pajlada/serialize/internal.hpp>
 #include <stdexcept>
@@ -282,6 +283,19 @@ struct Deserialize<std::variant<InnerTypes...>, RJValue> {
         }
 
         return ret;
+    }
+};
+
+template <class InnerType, typename RJValue>
+struct Deserialize<std::optional<InnerType>, RJValue> {
+    static std::optional<InnerType>
+    get(const RJValue &value, bool *error = nullptr)
+    {
+        if (value.IsNull()) {
+            return std::nullopt;
+        }
+
+        return Deserialize<InnerType>::get(value, error);
     }
 };
 

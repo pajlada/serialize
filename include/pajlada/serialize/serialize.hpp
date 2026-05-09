@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <pajlada/serialize/common.hpp>
 #include <pajlada/serialize/internal.hpp>
 #include <stdexcept>
@@ -214,6 +215,23 @@ struct Serialize<std::variant<InnerTypes...>, RJValue> {
                 return Serialize<ActualType>::get(arg, a);
             },
             value);
+    }
+};
+
+template <class InnerType, typename RJValue>
+struct Serialize<std::optional<InnerType>, RJValue> {
+    static RJValue
+    get(const std::optional<InnerType> &value,
+        typename RJValue::AllocatorType &a)
+    {
+        PSE_DEBUG("serializing optional '" << internal::type_name<InnerType>()
+                                           << '\'');
+
+        if (value.has_value()) {
+            return Serialize<InnerType>::get(value.value(), a);
+        }
+
+        return RJValue{rapidjson::kNullType};
     }
 };
 
